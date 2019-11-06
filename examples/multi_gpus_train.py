@@ -73,7 +73,10 @@ def train(finetune):
 
     # data pipeline
     imgs, age_labels, age_vectors = gen_data_batch(cfg.data_path, cfg.batch_size*cfg.train.num_gpus)
+    print("!!!imgs.get_shape()!!!")
+    print(imgs.get_shape())#(?, 3, 64, 64, 3)
     imgs = tf.reshape(imgs, (-1, imgs.get_shape()[2], imgs.get_shape()[3], imgs.get_shape()[4]))
+    print(imgs.get_shape())#(?, 64, 64, 3)
     imgs_split = tf.split(imgs, cfg.train.num_gpus)
     age_labels_split = tf.split(age_labels, cfg.train.num_gpus)
     age_vectors_split = tf.split(age_vectors, cfg.train.num_gpus)
@@ -135,7 +138,7 @@ def train(finetune):
     for i in range(1, cfg.train.max_batches):
         _, loss_, lr_ = sess.run([train_op, current_loss, learning_rate])
         if(i % 10 == 0):
-            print(i,': ', loss_, '          lr: ', lr_)
+            print('No. ', i,' batch, loss: ', loss_, '  lr: ', lr_)
         if int(i) % int(cfg.train.num_samples / cfg.train.num_gpus / cfg.batch_size) == 0:
             cnt_epoch += 1
             saver.save(sess, ckpt_dir+'C3AEDet', global_step=cnt_epoch, write_meta_graph=True)

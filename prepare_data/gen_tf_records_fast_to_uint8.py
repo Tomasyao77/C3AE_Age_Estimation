@@ -36,7 +36,8 @@ def extract_image(image_path, height, width, is_resize=True):
     img = cv2.imread(image_path)
     if is_resize:
         h, w, _ = img.shape
-        image = cv2.resize(img, (96, 96))
+        # image = cv2.resize(img, (96, 96))
+        image = cv2.resize(img, (height, width))
         # cv2.imshow("img", image)
         # cv2.waitKey(0)
     else:
@@ -55,7 +56,7 @@ def run_encode(file_path, tf_records_filename):
     imgs = []
     writer = tf.python_io.TFRecordWriter(tf_records_filename)
     for i in tqdm(range(imgs_path.shape[0])):
-        img = extract_image(imgs_path[i], height, width, is_resize=False)
+        img = extract_image(imgs_path[i], height, width, is_resize=True)
         img = img.tostring()
         age_label = age_labels[i].flatten().tolist()
         age_vector = age_vectors[i].flatten().tolist()
