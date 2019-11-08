@@ -31,9 +31,16 @@ class C3AENet:
             print(tf.shape(self.age_labels))
             loss_l1 = l1_loss(self.pred, self.age_labels)
             loss_kl = kl_loss(self.feats, self.age_vector, self.l1_loss)
-            # self.all_loss = loss_l1 + cfg.train.ratio * loss_kl
-            self.all_loss = loss_l1
+            self.all_loss = loss_l1 + cfg.train.ratio * loss_kl
+            # self.all_loss = loss_l1
         return self.all_loss
+
+    def compute_ae(self):
+        with tf.name_scope('loss_0'):
+            print(tf.shape(self.pred))
+            print(tf.shape(self.age_labels))
+            loss_l1 = l1_loss(self.pred, self.age_labels)
+        return loss_l1
 
     def predict(self):
         '''

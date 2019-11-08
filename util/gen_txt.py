@@ -3,14 +3,17 @@ import os
 import math
 import numpy as np
 import random
+import time
+import matplotlib.pyplot as plt  # 约定俗成的写法plt
+import tensorflow as tf
 
 
 def log():
-    f = open("../log/log_t", "r")
-    w = open("../log/log_t1", "a")
+    f = open("../logs/20191107_211836_train_log", "r")
+    w = open("../logs/20191107_211836_train_log1", "a")
     lines = f.readlines()  # 读取全部内容
     for line in lines:
-        if 'best val mae' in line:
+        if 'epoch' in line:
             w.write(line)
             # print(line)
 
@@ -54,12 +57,21 @@ def changename():
 
 
 def write_txt():
-    path = "/media/zouy/workspace/gitcloneroot/C3AE_Age_Estimation/data/dataset/morph2/"
-    img_list = "/media/zouy/workspace/gitcloneroot/C3AE_Age_Estimation/data/img_list/img_list.txt"
-    train_list = "/media/zouy/workspace/gitcloneroot/C3AE_Age_Estimation/data/train_list/train.txt"
+    # base = "/media/gisdom/data11/tomasyao/workspace/pycharm_ws/"
+    base = "/media/zouy/workspace/gitcloneroot/"
+
+    path = base + "C3AE_Age_Estimation/data/dataset/morph2/"
+    img_list = base + "C3AE_Age_Estimation/data/img_list/img_list.txt"
+    train_list = base + "C3AE_Age_Estimation/data/train_list/train.txt"
+    val_list = base + "C3AE_Age_Estimation/data/val_list/val.txt"
+    test_list = base + "C3AE_Age_Estimation/data/test_list/test.txt"
+
     img_list_txt = []
     train_list_txt = []
-    f = os.listdir(path)
+    val_list_txt = []
+    test_list_txt = []
+
+    f = os.listdir(path)#把所有图片名读进来
     # print(f.__len__())#52099
 
     for name in f:
@@ -72,13 +84,10 @@ def write_txt():
     # img_list_txt.sort()
     # train_list_txt.sort()
 
-    # w1 = open(img_list, "a")
-    # for line in img_list_txt:
-    #     w1.write(line + "\n")
-    # w1.close()
-
-    random.shuffle(img_list_txt)
+    #random.shuffle(img_list_txt)
     train_list_txt_tmp = img_list_txt[:int(img_list_txt.__len__() * 0.7)]
+    val_list_txt_tmp = img_list_txt[int(img_list_txt.__len__() * 0.7):int(img_list_txt.__len__() * 0.9)]
+    test_list_txt_tmp = img_list_txt[int(img_list_txt.__len__() * 0.9):]
     # print(train_list_txt)
     # 计算age_Yn_vector
     for item in train_list_txt_tmp:
@@ -89,13 +98,35 @@ def write_txt():
         age_vector[age // 10 + 1] = age % 10 / 10
         np.insert(age_vector, 0, train_list_txt_item[1])
         train_list_txt.append(list_to_str(train_list_txt_item) + " " + list_to_str(age_vector))
-        # print(train_list_txt)
-        # break
+    for item in val_list_txt_tmp:
+        val_list_txt_item = item.split(" ")
+        age = int(item.split(" ")[1])
+        age_vector = np.zeros(12)
+        age_vector[age // 10] = (10 - age % 10) / 10
+        age_vector[age // 10 + 1] = age % 10 / 10
+        np.insert(age_vector, 0, val_list_txt_item[1])
+        val_list_txt.append(list_to_str(val_list_txt_item) + " " + list_to_str(age_vector))
+    for item in test_list_txt_tmp:
+        test_list_txt_item = item.split(" ")
+        age = int(item.split(" ")[1])
+        age_vector = np.zeros(12)
+        age_vector[age // 10] = (10 - age % 10) / 10
+        age_vector[age // 10 + 1] = age % 10 / 10
+        np.insert(age_vector, 0, test_list_txt_item[1])
+        test_list_txt.append(list_to_str(test_list_txt_item) + " " + list_to_str(age_vector))
 
-    w2 = open(train_list, "a")
+    w1 = open(train_list, "a")
     for line in train_list_txt:
+        w1.write(line + "\n")
+    w1.close()
+    w2 = open(val_list, "a")
+    for line in val_list_txt:
         w2.write(line + "\n")
     w2.close()
+    w3 = open(test_list, "a")
+    for line in test_list_txt:
+        w3.write(line + "\n")
+    w3.close()
 
 
 def count_age_group():
@@ -133,8 +164,55 @@ def list_to_str(a_list):
     return " ".join(list(map(str, a_list)))
 
 
+def plot():
+    # 首先定义两个函数（正弦&余弦）
+    # X = np.linspace(-np.pi, np.pi, 256, endpoint=True)  # -π to+π的256个值
+    # C, S = np.cos(X), np.sin(X)
+    # plt.plot(X, C)
+    # plt.plot(X, S)
+    # # 在ipython的交互环境中需要这句话才能显示出来
+    # plt.show()
+    base = ""
+
+    x = np.linspace(1, 160, 160, endpoint=True)
+    f = open("/media/zouy/workspace/gitcloneroot/C3AE_Age_Estimation/logs/20191107_211836_train_log1", "r")
+    lines = f.readlines()
+    y = []
+    for line in lines:
+        line = line.split(" ")
+        # print(line)
+        y.append(round(float(line[5]), 2))
+        f.close()
+    y = np.array(y)
+    plt.plot(x, y)
+    plt.show()
+
+def tf_reduce_mean():
+    mean_loss = [1,2,3,5,6.]
+    # mean_loss = tf.cast(mean_loss, tf.float32)
+    mean_loss = tf.reduce_mean(mean_loss)
+
+    with tf.Session() as sess:
+        print(sess.run(mean_loss))
+
+def lt3_loss():
+    f = open("../logs/20191107_152820_train_log1", "r")
+    w = open("../logs/20191107_152820_train_log2", "a")
+    lines = f.readlines()  # 读取全部内容
+    for line in lines:
+        line_split = line.split(" ")
+        if float(line_split[5]) < 3.:
+            # print(line_split)
+            w.write(line)
+
+    f.close()
+    w.close()
+
 if __name__ == '__main__':
-    write_txt()
+    plot()
     # x = np.zeros(5)
     # x = np.insert(x, 1, [1, 2])
     # print(x)
+    # start_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+    # end_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+    # print(time.strptime(end_time, '%Y-%m-%d %H:%M:%S')-time.strptime(start_time, '%Y-%m-%d %H:%M:%S'))

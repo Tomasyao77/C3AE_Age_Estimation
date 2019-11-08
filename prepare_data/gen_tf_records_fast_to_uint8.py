@@ -69,7 +69,16 @@ def run_encode(file_path, tf_records_filename):
     writer.close()
 
 if __name__ == '__main__':
-    file_path = '../data/train_list/train.txt'
-    tf_records_filename = '../tf_records/train.records'
+    #train
+    file_path_train = '../data/train_list/train.txt'
+    tf_records_filename_train = '../tf_records/train.records'
+    #validate
+    file_path_val = '../data/val_list/val.txt'
+    tf_records_filename_val = '../tf_records/val.records'
+    # validate
+    file_path_test = '../data/test_list/test.txt'
+    tf_records_filename_test = '../tf_records/test.records'
 
-    run_encode(file_path, tf_records_filename)
+    run_encode(file_path_train, tf_records_filename_train)
+    run_encode(file_path_val, tf_records_filename_val)
+    run_encode(file_path_test, tf_records_filename_test)
