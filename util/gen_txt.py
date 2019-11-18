@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt  # 约定俗成的写法plt
 import tensorflow as tf
 
 
-def log():
-    f = open("../logs/20191107_211836_train_log", "r")
-    w = open("../logs/20191107_211836_train_log1", "a")
+def log(logname):
+    f = open("../logs/" + logname, "r")
+    w = open("../logs/" + logname + "1", "a")
     lines = f.readlines()  # 读取全部内容
     for line in lines:
         if 'epoch' in line:
@@ -19,6 +19,8 @@ def log():
 
     f.close()
     w.close()
+
+    plot(logname + "1")
 
 
 def csv():
@@ -77,6 +79,7 @@ def write_txt():
     for name in f:
         # print(name)
         if "M" in name:
+            #format:img_path age
             img_list_txt.append(path + name + " " + name[name.index("M") + 1:name.index(".")])
         elif "F" in name:
             img_list_txt.append(path + name + " " + name[name.index("F") + 1:name.index(".")])
@@ -96,7 +99,7 @@ def write_txt():
         age_vector = np.zeros(12)
         age_vector[age // 10] = (10 - age % 10) / 10
         age_vector[age // 10 + 1] = age % 10 / 10
-        np.insert(age_vector, 0, train_list_txt_item[1])
+        # np.insert(age_vector, 0, train_list_txt_item[1])
         train_list_txt.append(list_to_str(train_list_txt_item) + " " + list_to_str(age_vector))
     for item in val_list_txt_tmp:
         val_list_txt_item = item.split(" ")
@@ -104,7 +107,7 @@ def write_txt():
         age_vector = np.zeros(12)
         age_vector[age // 10] = (10 - age % 10) / 10
         age_vector[age // 10 + 1] = age % 10 / 10
-        np.insert(age_vector, 0, val_list_txt_item[1])
+        # np.insert(age_vector, 0, val_list_txt_item[1])
         val_list_txt.append(list_to_str(val_list_txt_item) + " " + list_to_str(age_vector))
     for item in test_list_txt_tmp:
         test_list_txt_item = item.split(" ")
@@ -112,21 +115,22 @@ def write_txt():
         age_vector = np.zeros(12)
         age_vector[age // 10] = (10 - age % 10) / 10
         age_vector[age // 10 + 1] = age % 10 / 10
-        np.insert(age_vector, 0, test_list_txt_item[1])
+        # np.insert(age_vector, 0, test_list_txt_item[1])
+        # print(age_vector.__len__())
         test_list_txt.append(list_to_str(test_list_txt_item) + " " + list_to_str(age_vector))
 
-    w1 = open(train_list, "a")
-    for line in train_list_txt:
-        w1.write(line + "\n")
-    w1.close()
-    w2 = open(val_list, "a")
-    for line in val_list_txt:
-        w2.write(line + "\n")
-    w2.close()
-    w3 = open(test_list, "a")
-    for line in test_list_txt:
-        w3.write(line + "\n")
-    w3.close()
+    # w1 = open(train_list, "a")
+    # for line in train_list_txt:
+    #     w1.write(line + "\n")
+    # w1.close()
+    # w2 = open(val_list, "a")
+    # for line in val_list_txt:
+    #     w2.write(line + "\n")
+    # w2.close()
+    # w3 = open(test_list, "a")
+    # for line in test_list_txt:
+    #     w3.write(line + "\n")
+    # w3.close()
 
 
 def count_age_group():
@@ -164,7 +168,7 @@ def list_to_str(a_list):
     return " ".join(list(map(str, a_list)))
 
 
-def plot():
+def plot(logname):
     # 首先定义两个函数（正弦&余弦）
     # X = np.linspace(-np.pi, np.pi, 256, endpoint=True)  # -π to+π的256个值
     # C, S = np.cos(X), np.sin(X)
@@ -175,7 +179,7 @@ def plot():
     base = ""
 
     x = np.linspace(1, 160, 160, endpoint=True)
-    f = open("/media/zouy/workspace/gitcloneroot/C3AE_Age_Estimation/logs/20191107_211836_train_log1", "r")
+    f = open("/media/zouy/workspace/gitcloneroot/C3AE_Age_Estimation/logs/" + logname, "r")
     lines = f.readlines()
     y = []
     for line in lines:
@@ -195,9 +199,9 @@ def tf_reduce_mean():
     with tf.Session() as sess:
         print(sess.run(mean_loss))
 
-def lt3_loss():
-    f = open("../logs/20191107_152820_train_log1", "r")
-    w = open("../logs/20191107_152820_train_log2", "a")
+def lessthan3_loss():
+    f = open("../logs/20191108_082911_train_log_60_1", "r")
+    w = open("../logs/20191108_082911_train_log_60_2", "a")
     lines = f.readlines()  # 读取全部内容
     for line in lines:
         line_split = line.split(" ")
@@ -209,7 +213,7 @@ def lt3_loss():
     w.close()
 
 if __name__ == '__main__':
-    plot()
+    log("20191113_142100_morph2_train_bs128_log")
     # x = np.zeros(5)
     # x = np.insert(x, 1, [1, 2])
     # print(x)

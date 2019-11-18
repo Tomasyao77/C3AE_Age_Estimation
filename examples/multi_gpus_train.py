@@ -134,27 +134,37 @@ def train(finetune):
     sess = tf.Session(config=config)
 
     # Create a saver
-    # saver = tf.train.Saver(max_to_keep=1000)
+    saver = tf.train.Saver(max_to_keep=1000)
     ckpt_dir = cfg.ckpt_path
 
     # init
     sess.run(tf.global_variables_initializer())
     # 微调，使用预训练模型
     if finetune:
-        checkpoint = './ckpt/pre_train.ckpt'
+        checkpoint = '../ckpt/pre-imdb-wiki-ckpt/'
 
         # variables_to_restore = slim.get_variables_to_restore()
         # init_assign_op, init_feed_dict = slim.assign_from_checkpoint(checkpoint, variables_to_restore, ignore_missing_vars=True)
         # sess.run(init_assign_op, init_feed_dict)
 
-        variables_to_restore = get_variables_to_restore(exclude_global_pool=True)
-        init_assign_op, init_feed_dict = slim.assign_from_checkpoint(checkpoint, variables_to_restore,
-                                                                     ignore_missing_vars=True)
-        sess.run(init_assign_op, init_feed_dict)
+        # variables_to_restore = get_variables_to_restore(exclude_global_pool=True)
+        # init_assign_op, init_feed_dict = slim.assign_from_checkpoint(checkpoint, variables_to_restore,
+        #                                                              ignore_missing_vars=True)
+        # sess.run(init_assign_op, init_feed_dict)
+
+        #恢复模型参数
+        # 加载检查点状态，这里会获取最新训练好的模型
+        ckpt = tf.train.get_checkpoint_state(checkpoint)
+        if ckpt and ckpt.model_checkpoint_path:
+            print(ckpt.model_checkpoint_path)
+            # 加载模型和训练好的参数
+            saver.restore(sess, ckpt.model_checkpoint_path)
+            print("加载模型成功：" + ckpt.model_checkpoint_path)
 
     # running
     cnt_epoch = 0
     min_train_loss = 1000
+    mean_train_loss = []
     # 160 epochs
     for i in range(1, int(cfg.train.num_samples / cfg.train.num_gpus / cfg.batch_size) * cfg.epochs + 1):
         _, loss_, lr_ = sess.run([train_op, current_loss, learning_rate])
@@ -162,12 +172,13 @@ def train(finetune):
             print('No.', i, ' batch, loss:', loss_, ' lr:', lr_)
         if int(i) % int(cfg.train.num_samples / cfg.train.num_gpus / cfg.batch_size) == 0:
             cnt_epoch += 1
+            mean_train_loss.append(loss_)
             if min_train_loss > loss_:
                 min_train_loss = loss_
             print('No.', cnt_epoch, ' epoch, loss:', loss_, ' lr:', lr_)
             # 计算验证集的误差
             # print('No.', cnt_epoch, ' epoch, loss_val:', sess.run(loss_val))
-            # saver.save(sess, ckpt_dir + 'C3AEDet', global_step=cnt_epoch, write_meta_graph=True)
+            saver.save(sess, ckpt_dir + 'C3AEDet', global_step=cnt_epoch, write_meta_graph=True)
 
     print("结束训练时间：")
     end_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
@@ -175,7 +186,9 @@ def train(finetune):
     # 发邮件
     smtp.main(dict_={"共训练epochs: ": cnt_epoch,
                      "训练耗时: ": smtp.date_gap(start_time, end_time),
-                     "最低train_loss: ": min_train_loss})
+                     "最低train_loss: ": min_train_loss,
+                     "平均train_loss: ": sess.run(tf.reduce_mean(mean_train_loss)),
+                     "数据集: ": cfg.train.tf_records})
 
 
 if __name__ == '__main__':

@@ -6,12 +6,14 @@ import os
 cfg = edict()
 
 cfg.batch_size = 50
-cfg.ckpt_path = '../ckpt/'
-# cfg.ckpt_path = '../ckpt_l1kl/'
+# cfg.ckpt_path = '../ckpt/pre-imdb-wiki-ckpt/'
+cfg.ckpt_path = '../ckpt/ckpt-morph2/'
 
 # training options
 cfg.train = edict()
-cfg.train.tf_records = '../tf_records/train.records'
+cfg.train.txt = "/media/gisdom/data11/tomasyao/workspace/pycharm_ws/mypython/dataset/morph2_split/test_morph2_align.txt"
+cfg.train.tf_records = '../tf_records/morph2_align/train.records'
+# cfg.train.tf_records = '../data/dataset/imdb_wiki_crop/imdb_wiki_crop_train.records'
 
 cfg.train.ignore_thresh = .5
 cfg.train.ratio = 0.8
@@ -28,7 +30,7 @@ cfg.train.tower = 'tower'
 cfg.train.learn_rate = 0.001
 cfg.train.learn_rate_decay = 0.9
 cfg.train.learn_rate_decay_epoch = 2
-cfg.train.num_samples = 36469
+cfg.train.num_samples = 41613 #36469 #363856
 cfg.epochs = 160
 cfg.PRINT_LAYER_LOG = True
 cfg.ohem_ratio = 1.0
@@ -37,9 +39,10 @@ cfg.use_se_module = False
 # validate options
 cfg.val = edict()
 cfg.val.num_samples = 10420
-cfg.val.tf_records = '../tf_records/val.records'
+cfg.val.tf_records = '../tf_records/morph2_align/val.records'
 
 # test options
 cfg.test = edict()
-cfg.val.num_samples = 5210
-cfg.test.tf_records = '../tf_records/test.records'
+cfg.val.num_samples = 10404 #5210
+cfg.test.txt = "/media/gisdom/data11/tomasyao/workspace/pycharm_ws/mypython/dataset/morph2_split/train_morph2_align.txt"
+cfg.test.tf_records = '../tf_records/morph2_align/test.records'

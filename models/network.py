@@ -71,7 +71,7 @@ class Network(object):
                 # concat = reshape(conv5, [-1, avg5.get_shape()[3] * 3], 'reshape')
                 concat = reshape(conv5, [-1, conv5.get_shape()[1] * conv5.get_shape()[2] * conv5.get_shape()[3] * 3],
                                  'reshape')
-                feats = fully_connected(concat, 12, name='fc_1')
+                feats = fully_connected(concat, 11, name='fc_1')
                 pred = fully_connected(feats, 1, name='fc_2')
                 if is_training:
                     print(tf.losses.get_regularization_losses()[-2])

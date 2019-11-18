@@ -7,8 +7,10 @@ import cv2
 from tqdm import tqdm
 import re
 import sys
+
 sys.path.append('..')
 from config import cfg
+
 
 def load_file(file_path):
     '''
@@ -29,6 +31,7 @@ def load_file(file_path):
 
     return np.asarray(imgs_path), np.asarray(age_labels), np.asarray(age_vectors)
 
+
 def extract_image(image_path, height, width, is_resize=True):
     '''
     get b->g->r image data
@@ -47,6 +50,7 @@ def extract_image(image_path, height, width, is_resize=True):
     image_data = np.array(image, dtype='uint8')
     return image_data
 
+
 def run_encode(file_path, tf_records_filename):
     '''
     encode func
@@ -61,24 +65,25 @@ def run_encode(file_path, tf_records_filename):
         age_label = age_labels[i].flatten().tolist()
         age_vector = age_vectors[i].flatten().tolist()
         example = tf.train.Example(features=tf.train.Features(feature={
-                      'age_label' : tf.train.Feature(float_list = tf.train.FloatList(value=age_label)),
-                      'age_vector' : tf.train.Feature(float_list = tf.train.FloatList(value=age_vector)),
-                      'feature': tf.train.Feature(bytes_list = tf.train.BytesList(value=[img]))
-                  }))
+            'age_label': tf.train.Feature(float_list=tf.train.FloatList(value=age_label)),
+            'age_vector': tf.train.Feature(float_list=tf.train.FloatList(value=age_vector)),
+            'feature': tf.train.Feature(bytes_list=tf.train.BytesList(value=[img]))
+        }))
         writer.write(example.SerializeToString())
     writer.close()
 
+
 if __name__ == '__main__':
-    #train
-    file_path_train = '../data/train_list/train.txt'
-    tf_records_filename_train = '../tf_records/train.records'
-    #validate
-    file_path_val = '../data/val_list/val.txt'
-    tf_records_filename_val = '../tf_records/val.records'
+    # train
+    file_path_train = cfg.train.txt
+    tf_records_filename_train = cfg.train.tf_records
     # validate
-    file_path_test = '../data/test_list/test.txt'
-    tf_records_filename_test = '../tf_records/test.records'
+    # file_path_val = '../data/val_list/val.txt'
+    # tf_records_filename_val = '../tf_records/val.records'
+    # test
+    file_path_test = cfg.test.txt
+    tf_records_filename_test = cfg.test.tf_records
 
     run_encode(file_path_train, tf_records_filename_train)
-    run_encode(file_path_val, tf_records_filename_val)
+    # run_encode(file_path_val, tf_records_filename_val)
     run_encode(file_path_test, tf_records_filename_test)
